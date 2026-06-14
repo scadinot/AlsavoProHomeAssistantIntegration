@@ -161,19 +161,24 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry):
         """Get the options flow for this handler."""
-        return OptionsFlowHandler()
+        return OptionsFlowHandler(config_entry)
 
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
     """Handle the options flow: update the connection password."""
+
+    def __init__(self, config_entry):
+        # Stored under a private name to avoid clashing with the read-only
+        # `config_entry` property provided by recent Home Assistant versions.
+        self._config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
         if user_input is not None:
             password = user_input[CONF_PASSWORD].replace(" ", "")
             return self.async_create_entry(title="", data={CONF_PASSWORD: password})
 
-        current_password = self.config_entry.options.get(
-            CONF_PASSWORD, self.config_entry.data.get(CONF_PASSWORD)
+        current_password = self._config_entry.options.get(
+            CONF_PASSWORD, self._config_entry.data.get(CONF_PASSWORD)
         )
         return self.async_show_form(
             step_id="init",
