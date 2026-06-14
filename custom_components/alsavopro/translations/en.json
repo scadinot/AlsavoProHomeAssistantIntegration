@@ -38,7 +38,7 @@
     },
     "options": {
         "abort": {
-            "already_configured": "A device with this name and serial number already exists"
+            "already_configured": "A device with this serial number is already configured"
         },
         "step": {
             "init": {

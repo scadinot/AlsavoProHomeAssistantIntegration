@@ -22,6 +22,10 @@ from .const import (
 
 # _LOGGER = logging.getLogger(__name__)
 
+# Reject empty submissions for required text fields without needing
+# dedicated error translation keys.
+NON_EMPTY_STRING = vol.All(str, vol.Length(min=1))
+
 CONNECTION_TYPE_SCHEMA = vol.Schema(
     {
         vol.Required(CONNECTION_TYPE, default=CONNECTION_TYPE_CLOUD): vol.In(
@@ -211,9 +215,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="cloud",
             data_schema=vol.Schema({
-                vol.Required(CONF_NAME, default=data.get(CONF_NAME)): str,
-                vol.Required(SERIAL_NO, default=data.get(SERIAL_NO)): str,
-                vol.Required(CONF_PASSWORD, default=data.get(CONF_PASSWORD)): str,
+                vol.Required(CONF_NAME, default=data.get(CONF_NAME)): NON_EMPTY_STRING,
+                vol.Required(SERIAL_NO, default=data.get(SERIAL_NO)): NON_EMPTY_STRING,
+                vol.Required(CONF_PASSWORD, default=data.get(CONF_PASSWORD)): NON_EMPTY_STRING,
             }),
         )
 
@@ -234,30 +238,31 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="local",
             data_schema=vol.Schema({
-                vol.Required(CONF_NAME, default=data.get(CONF_NAME)): str,
-                vol.Required(SERIAL_NO, default=data.get(SERIAL_NO)): str,
+                vol.Required(CONF_NAME, default=data.get(CONF_NAME)): NON_EMPTY_STRING,
+                vol.Required(SERIAL_NO, default=data.get(SERIAL_NO)): NON_EMPTY_STRING,
                 vol.Required(
                     CONF_IP_ADDRESS,
                     default=data.get(CONF_IP_ADDRESS) if is_local else "",
-                ): str,
+                ): NON_EMPTY_STRING,
                 vol.Required(
                     CONF_PORT,
                     default=data.get(CONF_PORT) if is_local else DEFAULT_LOCAL_PORT,
-                ): str,
-                vol.Required(CONF_PASSWORD, default=data.get(CONF_PASSWORD)): str,
+                ): NON_EMPTY_STRING,
+                vol.Required(CONF_PASSWORD, default=data.get(CONF_PASSWORD)): NON_EMPTY_STRING,
             }),
         )
 
     def _apply(self, name, serial_no, ip_address, port_no, password):
         """Persist the new settings to the entry and finish the flow."""
-        new_unique_id = f"{name}-{serial_no}"
-
-        # Prevent collision with a *different* existing entry.
+        # The serial number is the device's stable identifier
+        # (device_info uses ``(DOMAIN, serial_no)``), so reject a serial
+        # already used by a *different* entry.
         for entry in self.hass.config_entries.async_entries(DOMAIN):
             if (entry.entry_id != self._config_entry.entry_id
-                    and entry.unique_id == new_unique_id):
+                    and entry.data.get(SERIAL_NO) == serial_no):
                 return self.async_abort(reason="already_configured")
 
+        new_unique_id = f"{name}-{serial_no}"
         self.hass.config_entries.async_update_entry(
             self._config_entry,
             title=new_unique_id,
