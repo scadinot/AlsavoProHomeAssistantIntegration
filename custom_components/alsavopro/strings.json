@@ -35,5 +35,16 @@
         }
       }
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options",
+        "description": "Update the password used to connect to your Alsavo Pro heat pump",
+        "data": {
+          "password": "[%key:common::config_flow::data::password%]"
+        }
+      }
+    }
   }
 }

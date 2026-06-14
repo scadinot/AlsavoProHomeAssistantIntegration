@@ -34,7 +34,7 @@ async def async_setup_entry(hass, entry):
     serial_no = entry.data.get(SERIAL_NO)
     ip_address = entry.data.get(CONF_IP_ADDRESS)
     port_no = entry.data.get(CONF_PORT)
-    password = entry.data.get(CONF_PASSWORD)
+    password = entry.options.get(CONF_PASSWORD, entry.data.get(CONF_PASSWORD))
 
     data_handler = AlsavoPro(name, serial_no, ip_address, port_no, password)
     await data_handler.update()
@@ -44,9 +44,17 @@ async def async_setup_entry(hass, entry):
         hass.data[DOMAIN] = {}
     hass.data[DOMAIN][entry.entry_id] = data_coordinator
 
+    # Reload the entry when options (e.g. password) change so the new value is used.
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
+
     await hass.config_entries.async_forward_entry_setups(entry, ['binary_sensor', 'sensor', 'climate', 'number'])
 
     return True
+
+
+async def _async_update_listener(hass, entry):
+    """Reload the config entry when its options are updated."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass, config_entry):

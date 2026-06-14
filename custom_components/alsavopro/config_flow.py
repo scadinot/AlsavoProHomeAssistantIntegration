@@ -157,20 +157,33 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        """Get the options flow for this handler."""
+        return OptionsFlowHandler()
+
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
+    """Handle the options flow: update the connection password."""
+
     async def async_step_init(self, user_input=None):
+        if user_input is not None:
+            password = user_input[CONF_PASSWORD].replace(" ", "")
+            return self.async_create_entry(title="", data={CONF_PASSWORD: password})
+
+        current_password = self.config_entry.options.get(
+            CONF_PASSWORD, self.config_entry.data.get(CONF_PASSWORD)
+        )
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema({
-                vol.Optional(CONF_PASSWORD): str,
+                vol.Required(
+                    CONF_PASSWORD,
+                    description={"suggested_value": current_password},
+                ): str,
             }),
         )
-
-
-@callback
-def async_get_options_flow(config_entry):
-    return OptionsFlowHandler(config_entry)
 
 
 class CannotConnect(exceptions.HomeAssistantError):
