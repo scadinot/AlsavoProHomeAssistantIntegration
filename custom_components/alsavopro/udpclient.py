@@ -39,7 +39,9 @@ class UDPClient:
             if not self.future.done():
                 self.future.set_exception(ConnectionError("Connection lost"))
 
-    async def send_rcv(self, bytes_to_send: bytes, timeout: float = DEFAULT_TIMEOUT):
+    async def send_rcv(
+        self, bytes_to_send: bytes, timeout: float = DEFAULT_TIMEOUT
+    ) -> tuple[bytes, bytes] | None:
         """Send a datagram and wait for a single reply.
 
         Returns a ``(data, b'0')`` tuple on success, or ``None`` on timeout.
@@ -56,6 +58,9 @@ class UDPClient:
             return data, b'0'
         except asyncio.TimeoutError:
             _LOGGER.error("Timeout: no response from server within %.1f s.", timeout)
+            # Mark the future done before closing the transport so the
+            # protocol callbacks don't set an exception nobody retrieves.
+            future.cancel()
             return None
         finally:
             transport.close()
