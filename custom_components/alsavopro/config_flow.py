@@ -165,7 +165,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle the options flow: update the connection password."""
+    """Options flow mirroring the initial setup (all fields editable)."""
 
     def __init__(self, config_entry):
         # Stored under a private name to avoid clashing with the read-only
@@ -173,22 +173,105 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         self._config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
-        if user_input is not None:
-            password = user_input[CONF_PASSWORD].replace(" ", "")
-            return self.async_create_entry(title="", data={CONF_PASSWORD: password})
-
-        current_password = self._config_entry.options.get(
-            CONF_PASSWORD, self._config_entry.data.get(CONF_PASSWORD)
+        """First step: choose the connection type (defaults to the current one)."""
+        data = self._config_entry.data
+        current_type = (
+            CONNECTION_TYPE_CLOUD
+            if data.get(CONF_IP_ADDRESS) == CLOUD_IP
+            else CONNECTION_TYPE_LOCAL
         )
+
+        if user_input is not None:
+            if user_input[CONNECTION_TYPE] == CONNECTION_TYPE_CLOUD:
+                return await self.async_step_cloud()
+            return await self.async_step_local()
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema({
-                vol.Required(
-                    CONF_PASSWORD,
-                    description={"suggested_value": current_password},
-                ): str,
+                vol.Required(CONNECTION_TYPE, default=current_type): vol.In(
+                    [CONNECTION_TYPE_CLOUD, CONNECTION_TYPE_LOCAL]
+                ),
             }),
         )
+
+    async def async_step_cloud(self, user_input=None):
+        """Edit cloud connection settings."""
+        data = self._config_entry.data
+
+        if user_input is not None:
+            return self._apply(
+                user_input[CONF_NAME],
+                user_input[SERIAL_NO],
+                CLOUD_IP,
+                CLOUD_PORT,
+                user_input[CONF_PASSWORD].replace(" ", ""),
+            )
+
+        return self.async_show_form(
+            step_id="cloud",
+            data_schema=vol.Schema({
+                vol.Required(CONF_NAME, default=data.get(CONF_NAME)): str,
+                vol.Required(SERIAL_NO, default=data.get(SERIAL_NO)): str,
+                vol.Required(CONF_PASSWORD, default=data.get(CONF_PASSWORD)): str,
+            }),
+        )
+
+    async def async_step_local(self, user_input=None):
+        """Edit local connection settings."""
+        data = self._config_entry.data
+        is_local = data.get(CONF_IP_ADDRESS) != CLOUD_IP
+
+        if user_input is not None:
+            return self._apply(
+                user_input[CONF_NAME],
+                user_input[SERIAL_NO],
+                user_input[CONF_IP_ADDRESS],
+                user_input[CONF_PORT],
+                user_input[CONF_PASSWORD].replace(" ", ""),
+            )
+
+        return self.async_show_form(
+            step_id="local",
+            data_schema=vol.Schema({
+                vol.Required(CONF_NAME, default=data.get(CONF_NAME)): str,
+                vol.Required(SERIAL_NO, default=data.get(SERIAL_NO)): str,
+                vol.Required(
+                    CONF_IP_ADDRESS,
+                    default=data.get(CONF_IP_ADDRESS) if is_local else "",
+                ): str,
+                vol.Required(
+                    CONF_PORT,
+                    default=data.get(CONF_PORT) if is_local else DEFAULT_LOCAL_PORT,
+                ): str,
+                vol.Required(CONF_PASSWORD, default=data.get(CONF_PASSWORD)): str,
+            }),
+        )
+
+    def _apply(self, name, serial_no, ip_address, port_no, password):
+        """Persist the new settings to the entry and finish the flow."""
+        new_unique_id = f"{name}-{serial_no}"
+
+        # Prevent collision with a *different* existing entry.
+        for entry in self.hass.config_entries.async_entries(DOMAIN):
+            if (entry.entry_id != self._config_entry.entry_id
+                    and entry.unique_id == new_unique_id):
+                return self.async_abort(reason="already_configured")
+
+        self.hass.config_entries.async_update_entry(
+            self._config_entry,
+            title=new_unique_id,
+            unique_id=new_unique_id,
+            data={
+                CONF_NAME: name,
+                SERIAL_NO: serial_no,
+                CONF_IP_ADDRESS: ip_address,
+                CONF_PORT: port_no,
+                CONF_PASSWORD: password,
+            },
+            options={},  # purge any password stored by the previous options flow
+        )
+        return self.async_create_entry(title="", data={})
 
 
 class CannotConnect(exceptions.HomeAssistantError):
