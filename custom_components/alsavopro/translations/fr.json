@@ -1,0 +1,81 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Un appareil avec ce numéro de série est déjà configuré"
+        },
+        "error": {
+            "connection_error": "Connexion à la pompe à chaleur impossible. Vérifiez les informations et réessayez."
+        },
+        "step": {
+            "user": {
+                "title": "Type de connexion",
+                "description": "Choisissez comment Home Assistant doit se connecter à votre pompe à chaleur Alsavo Pro.",
+                "data": {
+                    "connection_type": "Type de connexion"
+                }
+            },
+            "cloud": {
+                "title": "Connexion Cloud",
+                "description": "Se connecter via le serveur cloud Alsavo (fonctionne à distance).",
+                "data": {
+                    "name": "Nom de l'appareil",
+                    "serial_no": "Numéro de série de la pompe à chaleur",
+                    "password": "Mot de passe (identique à l'appli Alsavo Pro)"
+                }
+            },
+            "local": {
+                "title": "Connexion locale",
+                "description": "Se connecter directement à la pompe à chaleur sur votre réseau local (Home Assistant doit être sur le même réseau).",
+                "data": {
+                    "name": "Nom de l'appareil",
+                    "serial_no": "Numéro de série de la pompe à chaleur",
+                    "ip_address": "Adresse IP",
+                    "port": "Port (1194 pour les connexions locales)",
+                    "password": "Mot de passe (identique à l'appli Alsavo Pro)"
+                }
+            }
+        }
+    },
+    "options": {
+        "abort": {
+            "already_configured": "Un appareil avec ce numéro de série est déjà configuré"
+        },
+        "step": {
+            "init": {
+                "title": "Type de connexion",
+                "description": "Modifiez le mode de connexion, puis vérifiez les réglages à l'étape suivante.",
+                "data": {
+                    "connection_type": "Type de connexion"
+                }
+            },
+            "cloud": {
+                "title": "Connexion Cloud",
+                "description": "Vérifiez et modifiez les réglages de la connexion Cloud.",
+                "data": {
+                    "name": "Nom de l'appareil",
+                    "serial_no": "Numéro de série de la pompe à chaleur",
+                    "password": "Mot de passe (identique à l'appli Alsavo Pro)"
+                }
+            },
+            "local": {
+                "title": "Connexion locale",
+                "description": "Vérifiez et modifiez les réglages de la connexion locale.",
+                "data": {
+                    "name": "Nom de l'appareil",
+                    "serial_no": "Numéro de série de la pompe à chaleur",
+                    "ip_address": "Adresse IP",
+                    "port": "Port (1194 pour les connexions locales)",
+                    "password": "Mot de passe (identique à l'appli Alsavo Pro)"
+                }
+            }
+        }
+    },
+    "selector": {
+        "connection_type": {
+            "options": {
+                "cloud": "Cloud (serveur Alsavo)",
+                "local": "Réseau local"
+            }
+        }
+    }
+}
