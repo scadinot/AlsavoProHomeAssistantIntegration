@@ -8,6 +8,7 @@ from homeassistant.const import (
     CONF_IP_ADDRESS,
     CONF_PORT
 )
+from homeassistant.helpers import selector
 
 from .const import (
     SERIAL_NO,
@@ -26,11 +27,21 @@ from .const import (
 # dedicated error translation keys.
 NON_EMPTY_STRING = vol.All(str, vol.Length(min=1))
 
+# Radio selector whose labels are localised via the "connection_type"
+# translation key (see the "selector" section in strings.json).
+CONNECTION_TYPE_SELECTOR = selector.SelectSelector(
+    selector.SelectSelectorConfig(
+        options=[CONNECTION_TYPE_CLOUD, CONNECTION_TYPE_LOCAL],
+        translation_key="connection_type",
+        mode=selector.SelectSelectorMode.LIST,
+    )
+)
+
 CONNECTION_TYPE_SCHEMA = vol.Schema(
     {
-        vol.Required(CONNECTION_TYPE, default=CONNECTION_TYPE_CLOUD): vol.In(
-            [CONNECTION_TYPE_CLOUD, CONNECTION_TYPE_LOCAL]
-        ),
+        vol.Required(
+            CONNECTION_TYPE, default=CONNECTION_TYPE_CLOUD
+        ): CONNECTION_TYPE_SELECTOR,
     }
 )
 
@@ -193,9 +204,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema({
-                vol.Required(CONNECTION_TYPE, default=current_type): vol.In(
-                    [CONNECTION_TYPE_CLOUD, CONNECTION_TYPE_LOCAL]
-                ),
+                vol.Required(
+                    CONNECTION_TYPE, default=current_type
+                ): CONNECTION_TYPE_SELECTOR,
             }),
         )
 

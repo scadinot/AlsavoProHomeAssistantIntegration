@@ -1,37 +1,37 @@
 {
     "config": {
         "abort": {
-            "already_configured": "Account is already configured"
+            "already_configured": "A device with this serial number is already configured"
         },
         "error": {
-            "connection_error": "Failed to connect"
+            "connection_error": "Could not connect to the heat pump. Check the details and try again."
         },
         "step": {
             "user": {
                 "title": "Connection type",
-                "description": "Select how to connect to your Alsavo Pro heat pump",
+                "description": "Choose how Home Assistant should connect to your Alsavo Pro heat pump.",
                 "data": {
                     "connection_type": "Connection type"
                 }
             },
             "cloud": {
                 "title": "Cloud connection",
-                "description": "Connect via the Alsavo cloud server",
+                "description": "Connect through the Alsavo cloud server (works from anywhere).",
                 "data": {
                     "name": "Device name",
-                    "serial_no": "Heatpump serial no",
-                    "password": "Password"
+                    "serial_no": "Heat pump serial number",
+                    "password": "Password (same as the Alsavo Pro app)"
                 }
             },
             "local": {
                 "title": "Local connection",
-                "description": "Connect directly to your heat pump on the local network",
+                "description": "Connect directly to the heat pump on your local network (Home Assistant must be on the same network).",
                 "data": {
                     "name": "Device name",
-                    "serial_no": "Heatpump serial no",
-                    "ip_address": "IP-address",
-                    "port": "Port no",
-                    "password": "Password"
+                    "serial_no": "Heat pump serial number",
+                    "ip_address": "IP address",
+                    "port": "Port (1194 for local connections)",
+                    "password": "Password (same as the Alsavo Pro app)"
                 }
             }
         }
@@ -43,30 +43,38 @@
         "step": {
             "init": {
                 "title": "Connection type",
-                "description": "Change how to connect, or update the settings on the next step",
+                "description": "Change how Home Assistant connects, then review the settings on the next step.",
                 "data": {
                     "connection_type": "Connection type"
                 }
             },
             "cloud": {
                 "title": "Cloud connection",
-                "description": "Update the cloud connection settings",
+                "description": "Review and update the cloud connection settings.",
                 "data": {
                     "name": "Device name",
-                    "serial_no": "Heatpump serial no",
-                    "password": "Password"
+                    "serial_no": "Heat pump serial number",
+                    "password": "Password (same as the Alsavo Pro app)"
                 }
             },
             "local": {
                 "title": "Local connection",
-                "description": "Update the local connection settings",
+                "description": "Review and update the local connection settings.",
                 "data": {
                     "name": "Device name",
-                    "serial_no": "Heatpump serial no",
-                    "ip_address": "IP-address",
-                    "port": "Port no",
-                    "password": "Password"
+                    "serial_no": "Heat pump serial number",
+                    "ip_address": "IP address",
+                    "port": "Port (1194 for local connections)",
+                    "password": "Password (same as the Alsavo Pro app)"
                 }
+            }
+        }
+    },
+    "selector": {
+        "connection_type": {
+            "options": {
+                "cloud": "Cloud (Alsavo server)",
+                "local": "Local network"
             }
         }
     }
