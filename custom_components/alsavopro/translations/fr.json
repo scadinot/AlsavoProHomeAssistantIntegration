@@ -77,5 +77,46 @@
                 "local": "Réseau local"
             }
         }
+    },
+    "entity": {
+        "sensor": {
+            "water_in_temperature": { "name": "Température d'eau entrée" },
+            "water_out_temperature": { "name": "Température d'eau sortie" },
+            "ambient_temperature": { "name": "Température ambiante" },
+            "cold_pipe_temperature": { "name": "Température tuyau froid" },
+            "heating_pipe_temperature": { "name": "Température tuyau chaud" },
+            "ipm_temperature": { "name": "Température IPM" },
+            "exhaust_temperature": { "name": "Température de refoulement" },
+            "exhaust_valve_opening": { "name": "Ouverture de la vanne d'échappement" },
+            "fan_speed": { "name": "Vitesse du ventilateur" },
+            "compressor_current": { "name": "Courant du compresseur" },
+            "compressor_running_frequency": { "name": "Fréquence du compresseur" },
+            "heating_mode_target": { "name": "Consigne mode chauffage" },
+            "cooling_mode_target": { "name": "Consigne mode refroidissement" },
+            "auto_mode_target": { "name": "Consigne mode auto" },
+            "power_mode": { "name": "Mode de puissance" },
+            "frequency_limit_code": { "name": "Code de limite de fréquence" },
+            "alarm_code_1": { "name": "Code d'alarme 1" },
+            "alarm_code_2": { "name": "Code d'alarme 2" },
+            "alarm_code_3": { "name": "Code d'alarme 3" },
+            "alarm_code_4": { "name": "Code d'alarme 4" },
+            "system_status_code": { "name": "Code d'état du système" },
+            "system_running_code": { "name": "Code de fonctionnement du système" },
+            "device_status_code": { "name": "Code d'état de l'appareil" },
+            "device_type": { "name": "Type d'appareil" },
+            "main_board_hw_revision": { "name": "Révision matérielle carte principale" },
+            "main_board_sw_revision": { "name": "Révision logicielle carte principale" },
+            "manual_hw_code": { "name": "Code matériel manuel" },
+            "manual_sw_code": { "name": "Code logiciel manuel" },
+            "error_messages": { "name": "Messages d'erreur" }
+        },
+        "binary_sensor": {
+            "connectivity": { "name": "Connectivité" },
+            "frost_protection": { "name": "Protection antigel" },
+            "alarm": { "name": "Alarme" }
+        },
+        "number": {
+            "water_temperature_calibration": { "name": "Calibration de la température de l'eau" }
+        }
     }
 }
