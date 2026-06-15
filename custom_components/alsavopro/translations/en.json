@@ -37,11 +37,34 @@
         }
     },
     "options": {
+        "abort": {
+            "already_configured": "A device with this serial number is already configured"
+        },
         "step": {
             "init": {
-                "title": "Options",
-                "description": "Update the password used to connect to your Alsavo Pro heat pump",
+                "title": "Connection type",
+                "description": "Change how to connect, or update the settings on the next step",
                 "data": {
+                    "connection_type": "Connection type"
+                }
+            },
+            "cloud": {
+                "title": "Cloud connection",
+                "description": "Update the cloud connection settings",
+                "data": {
+                    "name": "Device name",
+                    "serial_no": "Heatpump serial no",
+                    "password": "Password"
+                }
+            },
+            "local": {
+                "title": "Local connection",
+                "description": "Update the local connection settings",
+                "data": {
+                    "name": "Device name",
+                    "serial_no": "Heatpump serial no",
+                    "ip_address": "IP-address",
+                    "port": "Port no",
                     "password": "Password"
                 }
             }
