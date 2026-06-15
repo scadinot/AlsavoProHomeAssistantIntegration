@@ -23,16 +23,12 @@ class AlsavoProConnectivitySensor(AlsavoProEntity, CoordinatorEntity, BinarySens
     _attr_has_entity_name = True
     _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_translation_key = "connectivity"
 
     def __init__(self, coordinator: AlsavoProDataCoordinator):
         super().__init__(coordinator)
         self.data_coordinator = coordinator
         self._data_handler = self.data_coordinator.data_handler
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "Connectivity"
 
     @property
     def unique_id(self):
@@ -48,16 +44,12 @@ class AlsavoProConnectivitySensor(AlsavoProEntity, CoordinatorEntity, BinarySens
 class AlsavoProFrostProtectionSensor(AlsavoProEntity, CoordinatorEntity, BinarySensorEntity):
     _attr_has_entity_name = True
     _attr_device_class = BinarySensorDeviceClass.COLD
+    _attr_translation_key = "frost_protection"
 
     def __init__(self, coordinator: AlsavoProDataCoordinator):
         super().__init__(coordinator)
         self.data_coordinator = coordinator
         self._data_handler = self.data_coordinator.data_handler
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "Frost protection"
 
     @property
     def unique_id(self):
@@ -74,16 +66,12 @@ class AlsavoProAlarmSensor(AlsavoProEntity, CoordinatorEntity, BinarySensorEntit
     _attr_has_entity_name = True
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_translation_key = "alarm"
 
     def __init__(self, coordinator: AlsavoProDataCoordinator):
         super().__init__(coordinator)
         self.data_coordinator = coordinator
         self._data_handler = self.data_coordinator.data_handler
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "Alarm"
 
     @property
     def unique_id(self):

@@ -261,11 +261,10 @@ class AlsavoProSensor(AlsavoProEntity, CoordinatorEntity, SensorEntity):
         self._icon = icon
         self._attr_entity_category = entity_category
         self._attr_state_class = state_class
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
+        # Localised display name comes from the "entity" section of the
+        # translation files, keyed by this slug. self._name is kept for the
+        # unique_id so existing entities are not orphaned.
+        self._attr_translation_key = name.lower().replace(" ", "_")
 
     # This property is important to let HA know if this entity is online or not.
     # If an entity is offline (return False), the UI will reflect this.
@@ -309,11 +308,7 @@ class AlsavoProErrorSensor(AlsavoProEntity, CoordinatorEntity, SensorEntity):
         self._name = name
         self._icon = "mdi:alert"
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
+        self._attr_translation_key = name.lower().replace(" ", "_")
 
     @property
     def unique_id(self):

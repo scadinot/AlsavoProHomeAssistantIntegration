@@ -55,11 +55,9 @@ class AlsavoProNumber(AlsavoProEntity, CoordinatorEntity, NumberEntity):
         self._attr_mode = NumberMode.BOX
         self._attr_device_class = NumberDeviceClass.TEMPERATURE
         self._attr_entity_category = EntityCategory.CONFIG
-
-    @property
-    def name(self):
-        """Return the name of the number entity."""
-        return self._name
+        # Localised display name via the "entity" section of the translations;
+        # self._name is kept for the unique_id.
+        self._attr_translation_key = name.lower().replace(" ", "_")
 
     @property
     def available(self) -> bool:

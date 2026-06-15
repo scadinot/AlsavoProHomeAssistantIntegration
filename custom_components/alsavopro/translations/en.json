@@ -77,5 +77,46 @@
                 "local": "Local network"
             }
         }
+    },
+    "entity": {
+        "sensor": {
+            "water_in_temperature": { "name": "Water in temperature" },
+            "water_out_temperature": { "name": "Water out temperature" },
+            "ambient_temperature": { "name": "Ambient temperature" },
+            "cold_pipe_temperature": { "name": "Cold pipe temperature" },
+            "heating_pipe_temperature": { "name": "Heating pipe temperature" },
+            "ipm_temperature": { "name": "IPM temperature" },
+            "exhaust_temperature": { "name": "Exhaust temperature" },
+            "exhaust_valve_opening": { "name": "Exhaust valve opening" },
+            "fan_speed": { "name": "Fan speed" },
+            "compressor_current": { "name": "Compressor current" },
+            "compressor_running_frequency": { "name": "Compressor running frequency" },
+            "heating_mode_target": { "name": "Heating mode target" },
+            "cooling_mode_target": { "name": "Cooling mode target" },
+            "auto_mode_target": { "name": "Auto mode target" },
+            "power_mode": { "name": "Power mode" },
+            "frequency_limit_code": { "name": "Frequency limit code" },
+            "alarm_code_1": { "name": "Alarm code 1" },
+            "alarm_code_2": { "name": "Alarm code 2" },
+            "alarm_code_3": { "name": "Alarm code 3" },
+            "alarm_code_4": { "name": "Alarm code 4" },
+            "system_status_code": { "name": "System status code" },
+            "system_running_code": { "name": "System running code" },
+            "device_status_code": { "name": "Device status code" },
+            "device_type": { "name": "Device type" },
+            "main_board_hw_revision": { "name": "Main board HW revision" },
+            "main_board_sw_revision": { "name": "Main board SW revision" },
+            "manual_hw_code": { "name": "Manual HW code" },
+            "manual_sw_code": { "name": "Manual SW code" },
+            "error_messages": { "name": "Error messages" }
+        },
+        "binary_sensor": {
+            "connectivity": { "name": "Connectivity" },
+            "frost_protection": { "name": "Frost protection" },
+            "alarm": { "name": "Alarm" }
+        },
+        "number": {
+            "water_temperature_calibration": { "name": "Water temperature calibration" }
+        }
     }
 }
