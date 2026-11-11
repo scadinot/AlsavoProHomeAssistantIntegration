@@ -17,3 +17,6 @@ jobs:
         uses: hacs/action@main
         with:
           category: integration
+          # Neither this fork nor its upstreams (goev, gllmlbrt) declare a
+          # license; skip that check until the owner picks one.
+          ignore: license
