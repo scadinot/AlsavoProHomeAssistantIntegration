@@ -12,7 +12,7 @@ Copy the folder *custom_components/alsavopro* of this project into the *custom_c
 Restart Home Assistant and go to *Devices and Services* and press *+Add integration*.
 Search for *AlsavoPro* and add it.
 #### HACS Custom Repository
-In HACS, add a custom repository and use https://github.com/goev/AlsavoProHomeAssistantIntegration
+In HACS, add a custom repository with the URL https://github.com/scadinot/AlsavoProHomeAssistantIntegration and the category *Integration*.
 Download from HACS.
 Restart Home Assistant and go to *Devices and Services* and press *+Add integration*.
 Search for *AlsavoPro* and add it.
