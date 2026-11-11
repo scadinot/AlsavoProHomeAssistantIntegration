@@ -1,0 +1,22 @@
+name: Validate HACS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate-hacs:
+    name: HACS Action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: HACS validation
+        uses: hacs/action@main
+        with:
+          category: integration
+          # Neither this fork nor its upstreams (goev, gllmlbrt) declare a
+          # license; skip that check until the owner picks one.
+          ignore: license

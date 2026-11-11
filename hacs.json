@@ -1,7 +1,6 @@
 {
-    "name": "AlsavoPro",
-    "homeassistant": "2024.11.0",
-    "render_readme": true,
-    "domain": "alsavopro",
-    "country": "🇪🇺"
-  }
+  "name": "AlsavoPro",
+  "content_in_root": false,
+  "render_readme": true,
+  "homeassistant": "2024.11.0"
+}

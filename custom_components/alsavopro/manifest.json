@@ -1,9 +1,11 @@
 {
   "domain": "alsavopro",
   "name": "AlsavoPro",
-  "documentation": "https://github.com/gllmlbrt/AlsavoProHomeAssistantIntegration",
-  "requirements": [],
-  "codeowners": [],
+  "codeowners": ["@scadinot"],
   "config_flow": true,
+  "documentation": "https://github.com/scadinot/AlsavoProHomeAssistantIntegration",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/scadinot/AlsavoProHomeAssistantIntegration/issues",
+  "requirements": [],
   "version": "0.1.0-beta"
 }
