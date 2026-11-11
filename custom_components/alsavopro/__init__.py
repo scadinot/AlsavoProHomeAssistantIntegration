@@ -1,27 +1,37 @@
 """Alsavo Pro pool heat pump integration."""
+import asyncio
 import logging
 from datetime import timedelta
-
-import async_timeout
-from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.update_coordinator import (
-    DataUpdateCoordinator,
-)
 
 from homeassistant.const import (
     CONF_PASSWORD,
     CONF_IP_ADDRESS,
     CONF_PORT,
     CONF_NAME,
+    Platform,
+)
+from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.update_coordinator import (
+    DataUpdateCoordinator,
+    UpdateFailed,
 )
 
 from .AlsavoPyCtrl import AlsavoPro
 from .const import (
     DOMAIN,
     SERIAL_NO,
+    UPDATE_INTERVAL,
+    UPDATE_TIMEOUT,
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+PLATFORMS = [
+    Platform.BINARY_SENSOR,
+    Platform.SENSOR,
+    Platform.CLIMATE,
+    Platform.NUMBER,
+]
 
 
 async def async_setup(hass, config):
@@ -37,17 +47,18 @@ async def async_setup_entry(hass, entry):
     password = entry.options.get(CONF_PASSWORD, entry.data.get(CONF_PASSWORD))
 
     data_handler = AlsavoPro(name, serial_no, ip_address, port_no, password)
-    await data_handler.update()
-    data_coordinator = AlsavoProDataCoordinator(hass, data_handler)
+    data_coordinator = AlsavoProDataCoordinator(hass, entry, data_handler)
 
-    if DOMAIN not in hass.data:
-        hass.data[DOMAIN] = {}
-    hass.data[DOMAIN][entry.entry_id] = data_coordinator
+    # Raises ConfigEntryNotReady if the pump can't be reached, so Home
+    # Assistant retries the setup later instead of loading dead entities.
+    await data_coordinator.async_config_entry_first_refresh()
+
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = data_coordinator
 
     # Reload the entry when options (e.g. password) change so the new value is used.
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
-    await hass.config_entries.async_forward_entry_setups(entry, ['binary_sensor', 'sensor', 'climate', 'number'])
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
 
@@ -57,44 +68,39 @@ async def _async_update_listener(hass, entry):
     await hass.config_entries.async_reload(entry.entry_id)
 
 
-async def async_unload_entry(hass, config_entry):
+async def async_unload_entry(hass, entry):
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_forward_entry_unload(
-        config_entry, "binary_sensor"
-    )
-    unload_ok |= await hass.config_entries.async_forward_entry_unload(
-        config_entry, "climate"
-    )
-    unload_ok |= await hass.config_entries.async_forward_entry_unload(
-        config_entry, "sensor"
-    )
-    unload_ok |= await hass.config_entries.async_forward_entry_unload(
-        config_entry, "number"
-    )
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.entry_id, None)
     return unload_ok
 
 
 class AlsavoProDataCoordinator(DataUpdateCoordinator):
-    def __init__(self, hass, data_handler):
+    def __init__(self, hass, config_entry, data_handler):
         """Initialize my coordinator."""
         super().__init__(
             hass,
             _LOGGER,
+            config_entry=config_entry,
             # Name of the data. For logging purposes.
             name="AlsavoPro",
             # Polling interval. Will only be polled if there are subscribers.
-            update_interval=timedelta(seconds=15),
+            update_interval=timedelta(seconds=UPDATE_INTERVAL),
         )
         self.data_handler = data_handler
 
     async def _async_update_data(self):
-        _LOGGER.debug("_async_update_data")
         try:
-            async with async_timeout.timeout(10):
+            async with asyncio.timeout(UPDATE_TIMEOUT):
                 await self.data_handler.update()
-                return self.data_handler
-        except Exception as ex:
-            _LOGGER.debug("_async_update_data timed out")
+        except TimeoutError as err:
+            raise UpdateFailed(
+                f"Timed out after {UPDATE_TIMEOUT} s waiting for the heat pump"
+            ) from err
+        except Exception as err:
+            raise UpdateFailed(f"Error communicating with the heat pump: {err}") from err
+        return self.data_handler
 
 
 class AlsavoProEntity:

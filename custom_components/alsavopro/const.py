@@ -24,6 +24,12 @@ MODE_TO_CONFIG = {0: 2,  # Cool
 NO_WATER_FLUX = "No water flux or water flow switch failure.\n\r"
 WATER_TEMP_TOO_LOW = "Water temperature (T2) too low protection under cooling mode.\n\r"
 
-# Max retries
-MAX_UPDATE_RETRIES = 10
-MAX_SET_CONFIG_RETRIES = 10
+# Attempts per call (each attempt re-authenticates: up to ~15 s with the
+# 5 s UDP timeout). The coordinator polls again every 15 s anyway, so a
+# small number keeps a failing poll well inside UPDATE_TIMEOUT.
+MAX_UPDATE_RETRIES = 2
+MAX_SET_CONFIG_RETRIES = 3
+
+# Polling interval and overall time budget for one coordinator refresh (s).
+UPDATE_INTERVAL = 15
+UPDATE_TIMEOUT = 40
