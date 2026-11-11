@@ -36,6 +36,11 @@ class AlsavoProConnectivitySensor(AlsavoProEntity, CoordinatorEntity, BinarySens
         return f"{self._data_handler.unique_id}_connectivity"
 
     @property
+    def available(self) -> bool:
+        """Always available: report "disconnected" rather than "unavailable"."""
+        return True
+
+    @property
     def is_on(self) -> bool:
         """Return True if the heat pump is connected."""
         return self._data_handler.is_online

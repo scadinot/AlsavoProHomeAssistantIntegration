@@ -8,7 +8,7 @@ If some adult with the proper knowledge could improve this, and maybe make it in
 
 ## Install
 #### Manually
-In Home Assistant, create a folder under *custom_components* named *AlsavoPro* and copy all the content of this project to that folder.
+Copy the folder *custom_components/alsavopro* of this project into the *custom_components* folder of your Home Assistant configuration, so that you end up with *config/custom_components/alsavopro/manifest.json*. The folder name must be exactly *alsavopro* (lower case), matching the integration domain.
 Restart Home Assistant and go to *Devices and Services* and press *+Add integration*.
 Search for *AlsavoPro* and add it.
 #### HACS Custom Repository

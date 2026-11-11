@@ -4,8 +4,13 @@ import random
 import struct
 from datetime import datetime, timezone
 from enum import Enum
-from custom_components.alsavopro.const import MODE_TO_CONFIG, NO_WATER_FLUX, WATER_TEMP_TOO_LOW, MAX_UPDATE_RETRIES, \
-     MAX_SET_CONFIG_RETRIES
+from .const import (
+    MODE_TO_CONFIG,
+    NO_WATER_FLUX,
+    WATER_TEMP_TOO_LOW,
+    MAX_UPDATE_RETRIES,
+    MAX_SET_CONFIG_RETRIES,
+)
 from .udpclient import UDPClient
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,43 +28,55 @@ class AlsavoPro:
         self._password = password
         self._data = QueryResponse(0, 0)
         self._session = AlsavoSocketCom()
-        self._set_retries = 0
-        self._update_retries = 0
         self._online = False
 
+    async def _connect(self):
+        await self._session.connect(self._ip_address, int(self._port_no), int(self._serial_no), self._password)
+
     async def update(self):
-        _LOGGER.debug(f"update")
+        """Fetch status and config from the heat pump.
+
+        Tries up to MAX_UPDATE_RETRIES times and raises ConnectionError if
+        every attempt fails. ``is_online`` is cleared on any failure,
+        including cancellation (e.g. the coordinator's timeout).
+        """
+        _LOGGER.debug("update")
+        last_error = None
+        online = False
         try:
-            await self._session.connect(self._ip_address, int(self._port_no), int(self._serial_no), self._password)
-            data = await self._session.query_all()
-            if data is not None:
+            for attempt in range(1, MAX_UPDATE_RETRIES + 1):
+                try:
+                    await self._connect()
+                    data = await self._session.query_all()
+                except Exception as err:  # noqa: BLE001 - protocol errors are varied
+                    last_error = err
+                    _LOGGER.debug("Update attempt %d/%d failed: %s", attempt, MAX_UPDATE_RETRIES, err)
+                    continue
                 self._data = data
-                self._online = True
-                self._update_retries = 0
-        except Exception as e:
-            if self._update_retries < MAX_UPDATE_RETRIES:
-                self._update_retries += 1
-                await self.update()
-            else:
-                self._update_retries = 0
-                _LOGGER.error(f"Unable to update: {e}")
-                self._online = False
+                online = True
+                return
+        finally:
+            self._online = online
+        raise ConnectionError(
+            f"No valid response after {MAX_UPDATE_RETRIES} attempts: {last_error}"
+        ) from last_error
 
     async def set_config(self, idx: int, value: int):
-        _LOGGER.debug(f"set_config({idx}, {value})")
-        try:
-            await self._session.connect(self._ip_address, int(self._port_no), int(self._serial_no), self._password)
-            await self._session.set_config(idx, value)
+        """Write a config register, trying up to MAX_SET_CONFIG_RETRIES times."""
+        _LOGGER.debug("set_config(%s, %s)", idx, value)
+        last_error = None
+        for attempt in range(1, MAX_SET_CONFIG_RETRIES + 1):
+            try:
+                await self._connect()
+                await self._session.set_config(idx, value)
+            except Exception as err:  # noqa: BLE001 - protocol errors are varied
+                last_error = err
+                _LOGGER.debug("set_config attempt %d/%d failed: %s", attempt, MAX_SET_CONFIG_RETRIES, err)
+                continue
             self._online = True
-            self._set_retries = 0
-        except Exception as e:
-            if self._set_retries < MAX_SET_CONFIG_RETRIES:
-                self._set_retries += 1
-                await self.set_config(idx, value)
-            else:
-                self._set_retries = 0
-                _LOGGER.error(f"Unable to set config: {idx}, {value} Error: {e}")
-                self._online = False
+            return
+        self._online = False
+        _LOGGER.error("Unable to set config %s=%s: %s", idx, value, last_error)
 
     @property
     def is_online(self) -> bool:
@@ -301,7 +318,7 @@ class Payload:
         self.data = []
 
     def get_value(self, idx):
-        if idx - self.startIdx < 0 or idx - self.startIdx > self.data.__len__():
+        if idx < self.startIdx or idx - self.startIdx >= len(self.data):
             return 0
         return self.data[idx - self.startIdx]
 
@@ -421,6 +438,8 @@ class AlsavoSocketCom:
     async def get_auth_challenge(self):
         auth_intro = AuthIntro(self.clientToken, self.serialQ)
         response = await self.send_and_receive(bytes(auth_intro.pack()))
+        if response is None:
+            raise ConnectionError("No response to auth request (pump offline or unreachable)")
         return AuthChallenge.unpack(response[0])
 
     async def send_auth_response(self, ctx):
